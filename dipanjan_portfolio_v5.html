@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dipanjan Basu</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --void:#050805;
+  --panel:#090e09;
+  --surface:#0d120d;
+  --glass:#0b1009;
+  --border:rgba(0,255,65,0.1);
+  --border-dim:rgba(0,255,65,0.05);
+  --green:#00FF41;
+  --green-dim:#1a6624;
+  --green-mid:rgba(0,255,65,0.55);
+  --green-soft:rgba(0,255,65,0.08);
+  --amber:#FFB000;
+  --red:#FF2942;
+  --muted:rgba(0,255,65,0.38);
+  --text:rgba(0,255,65,0.82);
+  --mono:'Share Tech Mono',monospace;
+  --serif:'Courier Prime',monospace;
+}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--void);
+  color:var(--text);
+  font-family:var(--mono);
+  overflow-x:hidden;
+  min-height:100vh;
+  cursor:none;
+}
+/* CRT scanlines */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9990;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
+}
+/* vignette */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9989;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.6) 100%);
+}
+
+/* ── CURSOR ── */
+#cur{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;width:14px;height:14px;border:1px solid var(--green);transform:translate(-50%,-50%);transition:width .15s,height .15s,background .15s;}
+#cur.on{width:44px;height:44px;background:rgba(0,255,65,0.06);}
+#cur-dot{position:fixed;top:0;left:0;z-index:10000;pointer-events:none;width:3px;height:14px;background:var(--green);transform:translate(-50%,-50%);animation:blink 1.1s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+
+/* ── NAV ── */
+#topnav{
+  position:fixed;top:0;left:0;right:0;z-index:800;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem 2rem;
+  background:rgba(5,8,5,0);
+  border-bottom:1px solid transparent;
+  transition:background .3s,border-color .3s;
+}
+#topnav.lit{background:rgba(5,8,5,0.96);backdrop-filter:blur(10px);border-color:var(--border);}
+.nav-logo{font-size:.8rem;color:var(--green);text-decoration:none;letter-spacing:.04em;}
+.nav-logo .p{color:var(--muted);}
+#breadcrumb{display:flex;align-items:center;gap:.5rem;font-size:.62rem;letter-spacing:.1em;color:var(--muted);}
+#breadcrumb a{color:var(--muted);text-decoration:none;transition:color .2s;}
+#breadcrumb a:hover{color:var(--green);}
+#breadcrumb .sep{color:var(--green-dim);}
+#breadcrumb .cur-crumb{color:var(--green);}
+.nav-right{display:flex;align-items:center;gap:1.5rem;}
+#back-btn{
+  display:none;font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--border);color:var(--muted);
+  padding:.28rem .8rem;cursor:pointer;background:none;
+  transition:border-color .2s,color .2s;font-family:var(--mono);
+}
+#back-btn:hover{border-color:var(--green);color:var(--green);}
+.nav-hire{font-size:.65rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--green);color:var(--green);padding:.28rem .9rem;text-decoration:none;transition:background .2s,color .2s;}
+.nav-hire:hover{background:var(--green);color:var(--void);}
+
+/* ── GLITCH OVERLAY (route transition) ── */
+#glitch{
+  position:fixed;inset:0;z-index:9995;pointer-events:none;
+  background:var(--void);opacity:0;
+}
+#glitch.in{animation:glitchIn .32s forwards;}
+#glitch.out{animation:glitchOut .32s forwards;}
+@keyframes glitchIn{
+  0%{opacity:0}
+  10%{opacity:1;clip-path:inset(30% 0 40% 0)}
+  20%{opacity:.8;clip-path:inset(60% 0 10% 0);transform:translateX(-4px)}
+  30%{opacity:1;clip-path:inset(0 0 0 0);transform:translateX(0)}
+  40%{opacity:.9;clip-path:inset(10% 0 50% 0);transform:translateX(3px)}
+  60%{opacity:1;clip-path:none;transform:translateX(0)}
+  100%{opacity:1}
+}
+@keyframes glitchOut{
+  0%{opacity:1}
+  30%{opacity:.9;clip-path:inset(20% 0 30% 0);transform:translateX(3px)}
+  60%{opacity:.5;clip-path:inset(5% 0 5% 0)}
+  100%{opacity:0}
+}
+
+/* ── PAGE WRAPPER ── */
+#app{position:relative;min-height:100vh;}
+.page{display:none;animation:pageIn .35s ease forwards;}
+.page.active{display:block;}
+@keyframes pageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ════════════════════════════════════════════
+   HOME PAGE
+════════════════════════════════════════════ */
+#page-home{}
+
+/* hero */
+.hero{
+  display:grid;grid-template-columns:1fr 300px;min-height:100vh;
+  border-bottom:1px solid var(--border);
+}
+.hero-main{
+  padding:6.5rem 2rem 2rem;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  border-right:1px solid var(--border);position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;bottom:-.05em;left:-.02em;
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(9rem,16vw,16rem);
+  color:transparent;-webkit-text-stroke:1px rgba(0,255,65,0.035);
+  line-height:1;pointer-events:none;user-select:none;letter-spacing:.02em;white-space:nowrap;
+}
+.boot{font-size:.68rem;color:var(--muted);margin-bottom:1.8rem;line-height:2;opacity:0;animation:fadeIn .4s .1s forwards;}
+.boot span{display:block;}
+.boot .ok{color:var(--green);}
+.boot .warn{color:var(--amber);}
+.hname{
+  font-family:'Bebas Neue',sans-serif;font-size:clamp(3.5rem,7vw,6.5rem);
+  line-height:.92;letter-spacing:.04em;color:var(--green);
+  position:relative;z-index:1;opacity:0;animation:flickerIn .6s .8s forwards;
+  text-shadow:0 0 30px rgba(0,255,65,.25);cursor:default;
+}
+.htag{font-family:var(--serif);font-size:.88rem;font-style:italic;color:var(--muted);line-height:1.7;margin-top:1.1rem;max-width:460px;z-index:1;position:relative;opacity:0;animation:fadeIn .6s 1.1s forwards;}
+.hcmds{display:flex;gap:.7rem;margin-top:1.5rem;z-index:1;position:relative;opacity:0;animation:fadeIn .5s 1.3s forwards;}
+.btn-exec{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;background:var(--green);color:var(--void);padding:.45rem 1.2rem;text-decoration:none;font-weight:bold;transition:box-shadow .2s,transform .15s;text-transform:uppercase;cursor:pointer;border:none;}
+.btn-exec:hover{box-shadow:0 0 20px rgba(0,255,65,.35);transform:translateY(-2px);}
+.btn-ghost{font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;border:1px solid var(--border);color:var(--muted);padding:.45rem 1.2rem;text-decoration:none;text-transform:uppercase;cursor:pointer;background:none;transition:border-color .2s,color .2s;}
+.btn-ghost:hover{border-color:var(--green);color:var(--green);}
+
+/* hero stats column */
+.hero-right{display:grid;grid-template-rows:repeat(4,1fr);opacity:0;animation:fadeIn .6s 1s forwards;}
+.htile{padding:1.4rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;justify-content:flex-end;transition:background .2s;position:relative;}
+.htile:last-child{border-bottom:none;}
+.htile:hover{background:var(--green-soft);}
+.htile.hl{background:rgba(0,255,65,0.05);}
+.htile-lbl{font-size:.56rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:.25rem;}
+.htile-val{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--green);line-height:1;text-shadow:0 0 18px rgba(0,255,65,.18);}
+.htile-val.am{color:var(--amber);text-shadow:0 0 18px rgba(255,176,0,.15);}
+.htile-val sup{font-size:.9rem;}
+.pulse-row{display:flex;align-items:center;gap:.5rem;font-size:.58rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.pdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 0 3px rgba(0,255,65,.12);animation:pulseG 2s infinite;}
+@keyframes pulseG{0%,100%{box-shadow:0 0 0 3px rgba(0,255,65,.12)}50%{box-shadow:0 0 0 7px rgba(0,255,65,.04)}}
+
+/* ticker */
+.ticker{background:var(--panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;padding:.5rem 0;display:flex;align-items:center;}
+.ticker-pfx{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:var(--green);padding:0 1.2rem;border-right:1px solid var(--border);flex-shrink:0;white-space:nowrap;}
+.ticker-track{display:flex;white-space:nowrap;animation:marquee 26s linear infinite;flex-shrink:0;}
+.ticker-track span{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 1.5rem;}
+.ticker-track .sep{color:var(--green-dim);padding:0;}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── HUB MOSAIC (home) ── */
+.hub{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  background:var(--void);
+}
+.hub-tile{
+  border-right:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  padding:1.6rem;
+  background:var(--panel);
+  cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:background .2s;
+  min-height:200px;
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.hub-tile:hover{background:rgba(0,255,65,0.04);}
+.hub-tile::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.hub-tile:hover::before{transform:scaleX(1);}
+.hub-tile:hover .tile-arrow{opacity:1;transform:translate(3px,-3px);}
+/* spans */
+.span2{grid-column:span 2;}
+.span4{grid-column:span 4;}
+.no-br{border-right:none;}
+.no-bb{border-bottom:none;}
+/* colours */
+.t-surface{background:var(--surface);}
+.t-glass{background:var(--glass);}
+.t-void{background:var(--void);}
+.t-green{background:rgba(0,255,65,0.05);}
+.t-amber{background:rgba(255,176,0,0.03);}
+/* tile content */
+.tile-tag{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green-dim);margin-bottom:.5rem;}
+.tile-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.04em;color:var(--green);line-height:1;text-shadow:0 0 16px rgba(0,255,65,.12);margin-bottom:.3rem;}
+.tile-sub{font-size:.75rem;color:var(--muted);line-height:1.6;}
+.tile-arrow{font-size:1rem;color:var(--green-dim);margin-top:.6rem;display:inline-block;opacity:.4;transform:translate(0,0);transition:opacity .2s,transform .2s;}
+.tile-big-num{font-family:'Bebas Neue',sans-serif;font-size:3.5rem;color:var(--green);line-height:1;text-shadow:0 0 22px rgba(0,255,65,.18);}
+.tile-big-num.am{color:var(--amber);text-shadow:0 0 22px rgba(255,176,0,.15);}
+.tile-big-num sup{font-size:1.1rem;}
+.tile-lbl{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:.3rem;}
+/* about tile: skills preview */
+.skill-preview{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.7rem;}
+.sp{font-size:.6rem;border:1px solid var(--border-dim);color:var(--muted);padding:.1rem .4rem;letter-spacing:.06em;}
+/* contact info in tile */
+.ci-list{display:flex;flex-direction:column;gap:.35rem;margin-top:.5rem;}
+.ci-r{font-size:.7rem;color:var(--muted);}
+.ci-r a{color:var(--muted);text-decoration:none;transition:color .2s;}
+.ci-r a:hover{color:var(--green);}
+.ci-r .ci-l{font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-dim);display:block;}
+
+/* ════════════════════════════════════════════
+   DETAIL PAGES (shared layout)
+════════════════════════════════════════════ */
+.detail-page{padding:5.5rem 2rem 2rem;max-width:1200px;margin:0 auto;}
+.detail-header{
+  border-bottom:1px solid var(--border);
+  padding-bottom:1.2rem;margin-bottom:0;
+  display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:.8rem;
+}
+.detail-tag{font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green-dim);margin-bottom:.4rem;}
+.detail-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.5rem,5vw,4.5rem);letter-spacing:.04em;color:var(--green);line-height:.95;text-shadow:0 0 28px rgba(0,255,65,.2);}
+.detail-meta{font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:right;}
+
+/* detail grid */
+.detail-grid{display:grid;grid-template-columns:1fr 320px;gap:0;border-left:1px solid var(--border);}
+.detail-main{padding:1.8rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+.detail-side{border-bottom:1px solid var(--border);}
+
+/* section heading inside detail */
+.sec-h{font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green-dim);margin-bottom:.9rem;display:flex;align-items:center;gap:.5rem;}
+.sec-h::before{content:'';width:16px;height:1px;background:var(--green-dim);}
+
+/* exp bullets */
+.exp-list{list-style:none;display:flex;flex-direction:column;gap:.6rem;}
+.exp-list li{font-size:.82rem;color:var(--muted);line-height:1.8;padding-left:1.3rem;position:relative;}
+.exp-list li::before{content:'>';position:absolute;left:0;color:var(--green-dim);}
+.exp-list li strong{color:var(--text);}
+
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.9rem;}
+.chip{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border-dim);color:var(--muted);padding:.12rem .45rem;transition:border-color .2s,color .2s;}
+.chip:hover{border-color:var(--green);color:var(--green);}
+
+/* side panels */
+.side-panel{padding:1.4rem;border-bottom:1px solid var(--border);}
+.side-panel:last-child{border-bottom:none;}
+.side-big{font-family:'Bebas Neue',sans-serif;font-size:2.8rem;color:var(--green);line-height:1;text-shadow:0 0 18px rgba(0,255,65,.18);}
+.side-big.am{color:var(--amber);text-shadow:0 0 18px rgba(255,176,0,.15);}
+.side-big sup{font-size:.9rem;}
+.side-lbl{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:.35rem;}
+.side-list{display:flex;flex-direction:column;gap:.4rem;}
+.side-item{font-size:.76rem;color:var(--muted);border-bottom:1px solid var(--border-dim);padding:.4rem 0;display:flex;justify-content:space-between;}
+.side-item:last-child{border-bottom:none;}
+.side-item-lbl{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--green-dim);}
+
+/* about detail */
+.about-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.about-p{font-size:.83rem;color:var(--muted);line-height:1.85;margin-bottom:.75rem;}
+.about-p strong{color:var(--text);}
+
+/* ── SKILLS PAGE ── */
+.skills-grid-full{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  border:1px solid var(--border);border-right:none;border-bottom:none;
+  margin-top:1.5rem;
+}
+.sk-cell{
+  padding:1.4rem;
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  transition:background .2s;
+}
+.sk-cell:hover{background:var(--green-soft);}
+.sk-cat{font-size:.56rem;letter-spacing:.2em;text-transform:uppercase;color:var(--green-dim);margin-bottom:.6rem;}
+.sk-pills{display:flex;flex-wrap:wrap;gap:.4rem;}
+.pill{font-size:.74rem;color:var(--muted);border-bottom:1px solid var(--border-dim);padding:.04rem 0;transition:color .2s,border-color .2s;cursor:default;}
+.pill:hover{color:var(--green);border-color:var(--green-dim);}
+
+/* ── PROJECTS PAGE ── */
+.proj-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:0;
+  border:1px solid var(--border);border-right:none;border-bottom:none;
+  margin-top:1.5rem;
+}
+.proj-card{
+  padding:1.8rem;
+  border-right:1px solid var(--border);border-bottom:1px solid var(--border);
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:background .2s;display:flex;flex-direction:column;
+}
+.proj-card:hover{background:var(--green-soft);}
+.proj-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .35s;}
+.proj-card:hover::before{transform:scaleX(1);}
+.proj-card:hover .tile-arrow{opacity:1;transform:translate(3px,-3px);}
+.pnum{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:transparent;-webkit-text-stroke:1px var(--border);line-height:1;margin-bottom:.8rem;}
+.pbadge{font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-dim);margin-bottom:.4rem;}
+.pname{font-family:var(--serif);font-weight:700;font-size:1.05rem;color:var(--text);line-height:1.25;margin-bottom:.55rem;}
+.pdesc{font-size:.8rem;color:var(--muted);line-height:1.75;margin-bottom:auto;padding-bottom:1rem;}
+.pchips{display:flex;flex-wrap:wrap;gap:.28rem;margin-bottom:.8rem;}
+.pc{font-size:.55rem;letter-spacing:.08em;border:1px solid var(--border-dim);color:var(--muted);padding:.1rem .4rem;transition:border-color .2s,color .2s;}
+.pc:hover{border-color:var(--green);color:var(--green);}
+
+/* ── PROJECT DETAIL ── */
+.proj-detail-hero{
+  display:grid;grid-template-columns:1fr 280px;gap:0;
+  border:1px solid var(--border);margin-top:1.5rem;
+}
+.proj-detail-main{padding:1.8rem;border-right:1px solid var(--border);}
+.proj-detail-side{padding:1.5rem;}
+.proj-feature-list{list-style:none;display:flex;flex-direction:column;gap:.55rem;margin-top:.8rem;}
+.proj-feature-list li{font-size:.82rem;color:var(--muted);line-height:1.75;padding-left:1.3rem;position:relative;}
+.proj-feature-list li::before{content:'>';position:absolute;left:0;color:var(--green-dim);}
+.proj-feature-list li strong{color:var(--text);}
+.proj-link-btn{
+  display:inline-flex;align-items:center;gap:.5rem;margin-top:1.4rem;
+  font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--green);color:var(--green);
+  padding:.4rem 1rem;text-decoration:none;transition:background .2s,color .2s;
+}
+.proj-link-btn:hover{background:var(--green);color:var(--void);}
+
+/* ── CONTACT PAGE ── */
+.contact-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:0;
+  border:1px solid var(--border);margin-top:1.5rem;
+}
+.contact-left{padding:2rem;border-right:1px solid var(--border);}
+.contact-right{padding:2rem;}
+.cta-prompt{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-dim);margin-bottom:.5rem;}
+.cta-hed{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,4vw,3.5rem);line-height:.95;letter-spacing:.04em;color:var(--green);text-shadow:0 0 24px rgba(0,255,65,.15);margin-bottom:1.2rem;}
+.clinks{display:flex;flex-direction:column;gap:0;}
+.clink{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-dim);padding:.7rem 0;text-decoration:none;transition:padding-left .18s;}
+.clink:first-child{border-top:1px solid var(--border-dim);}
+.clink:hover{padding-left:.5rem;}
+.clink-lbl{font-size:.54rem;letter-spacing:.16em;text-transform:uppercase;color:var(--green-dim);}
+.clink-val{font-size:.8rem;color:var(--muted);transition:color .2s;}
+.clink:hover .clink-val{color:var(--green);}
+.clink-arr{color:var(--border);font-size:.85rem;transition:transform .2s,color .2s;}
+.clink:hover .clink-arr{transform:translate(3px,-3px);color:var(--green);}
+
+/* footer */
+footer{border-top:1px solid var(--border);padding:.7rem 2rem;display:flex;justify-content:space-between;margin-top:2rem;}
+.ft{font-size:.55rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green-dim);}
+.ft span{color:var(--green);}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes flickerIn{0%{opacity:0}10%{opacity:.7}12%{opacity:0}15%{opacity:.9}17%{opacity:0}20%{opacity:1}22%{opacity:.7}24%{opacity:1}100%{opacity:1}}
+@keyframes up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* reveal on scroll */
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s,transform .5s;}
+.rv.vis{opacity:1;transform:translateY(0);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:3px;}
+::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--green-dim);}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:768px){
+  .hero{grid-template-columns:1fr;}
+  .hero-right{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;border-top:1px solid var(--border);}
+  .hub{grid-template-columns:1fr 1fr;}
+  .span2,.span4{grid-column:span 2;}
+  .no-br{border-right:1px solid var(--border);}
+  .hub-tile:nth-child(even){border-right:none;}
+  .detail-grid{grid-template-columns:1fr;}
+  .detail-side{border-top:1px solid var(--border);}
+  .about-cols{grid-template-columns:1fr;}
+  .skills-grid-full{grid-template-columns:1fr 1fr;}
+  .proj-grid{grid-template-columns:1fr;}
+  .proj-detail-hero{grid-template-columns:1fr;}
+  .proj-detail-side{border-top:1px solid var(--border);}
+  .contact-grid{grid-template-columns:1fr;}
+  .contact-right{border-top:1px solid var(--border);}
+  .detail-header{flex-direction:column;align-items:flex-start;}
+  .detail-meta{text-align:left;}
+  #topnav{padding:.65rem 1.2rem;}
+  .detail-page{padding:4.5rem 1.2rem 1.5rem;}
+}
+@media(max-width:480px){
+  .hub{grid-template-columns:1fr;}
+  .hub-tile,.span2{grid-column:span 1;}
+  .hub-tile{border-right:none;}
+  .skills-grid-full{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-dot"></div>
+<div id="glitch"></div>
+
+<!-- NAV -->
+<nav id="topnav">
+  <a href="#" class="nav-logo" data-route="home"><span class="p">root@</span>dipanjan-basu<span class="p">:~$</span></a>
+  <div id="breadcrumb"></div>
+  <div class="nav-right">
+    <button id="back-btn" onclick="goBack()">← back</button>
+    <a href="#" class="nav-hire" data-route="contact">./hire_me</a>
+  </div>
+</nav>
+
+<!-- APP -->
+<div id="app">
+
+<!-- ══════════════════ HOME ══════════════════ -->
+<div id="page-home" class="page">
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-main">
+      <div class="hero-bg">BASU</div>
+      <div class="boot">
+        <span class="ok">[  OK  ] Loading user profile .......................... done</span>
+        <span class="ok">[  OK  ] Stack: Angular 18+ · Go · Java · MySQL · NgRx · RxJS</span>
+        <span class="warn">[ WARN ] Talent exceeds available RAM — overflow handled gracefully</span>
+        <span class="ok">[  OK  ] Kolkata, India · Available immediately · Click a tile to explore</span>
+      </div>
+      <h1 class="hname" id="scramble-name">Dipanjan<br/>Basu</h1>
+      <p class="htag">"The only way to do great work is to know the system better than anyone else." — Full-stack engineer specialising in Angular 18+, Go, Java, and MySQL. Architect of micro-frontends, reactive pipelines, and production Go APIs.</p>
+      <div class="hcmds">
+        <a class="btn-exec" data-route="projects">./view_work</a>
+        <a class="btn-ghost" data-route="contact">ping me</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="htile hl"><div class="htile-lbl">Dealer Processing Saved</div><div class="htile-val">60<sup>%</sup></div></div>
+      <div class="htile"><div class="htile-lbl">API Response Optimised</div><div class="htile-val am">850→310<sup>ms</sup></div></div>
+      <div class="htile"><div class="htile-lbl">Go APIs in Production</div><div class="htile-val">15<sup>+</sup></div></div>
+      <div class="htile"><div class="pulse-row"><div class="pdot"></div>Open to Offers · Now</div><div class="htile-val" style="margin-top:.5rem">4.5<sup>yr</sup></div><div class="htile-lbl">Full-Stack Experience</div></div>
+    </div>
+  </div>
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <span class="ticker-pfx">STACK://</span>
+    <div class="ticker-track">
+      <span>Angular 18+</span><span class="sep"> · </span><span>Go (Golang)</span><span class="sep"> · </span><span>Java</span><span class="sep"> · </span><span>MySQL</span><span class="sep"> · </span><span>NgRx</span><span class="sep"> · </span><span>RxJS</span><span class="sep"> · </span><span>Module Federation</span><span class="sep"> · </span><span>Node.js</span><span class="sep"> · </span><span>MongoDB</span><span class="sep"> · </span><span>OpenAI GPT-4</span><span class="sep"> · </span><span>Gemini API</span><span class="sep"> · </span><span>Docker</span><span class="sep"> · </span><span>Linux</span><span class="sep"> · </span>
+      <span>Angular 18+</span><span class="sep"> · </span><span>Go (Golang)</span><span class="sep"> · </span><span>Java</span><span class="sep"> · </span><span>MySQL</span><span class="sep"> · </span><span>NgRx</span><span class="sep"> · </span><span>RxJS</span><span class="sep"> · </span><span>Module Federation</span><span class="sep"> · </span><span>Node.js</span><span class="sep"> · </span><span>MongoDB</span><span class="sep"> · </span><span>OpenAI GPT-4</span><span class="sep"> · </span><span>Gemini API</span><span class="sep"> · </span><span>Docker</span><span class="sep"> · </span><span>Linux</span><span class="sep"> · </span>
+    </div>
+  </div>
+
+  <!-- HUB MOSAIC -->
+  <div class="hub">
+    <!-- Row 1 -->
+    <div class="hub-tile span2 t-surface rv" data-route="about">
+      <div class="tile-tag">./about</div>
+      <div class="tile-title">Who I Am</div>
+      <div class="tile-sub">Full-Stack Developer. Kolkata. 4.5 yrs. Angular 18+, Go, Java, MySQL — building systems that survive production.</div>
+      <div class="tile-arrow">↗</div>
+    </div>
+    <div class="hub-tile t-void rv" style="transition-delay:.05s" data-route="deloitte">
+      <div class="tile-tag">./work/deloitte</div>
+      <div class="tile-title">Deloitte</div>
+      <div class="tile-sub">Mercedes-Benz · Mar 2024 – Mar 2026 · Full-Stack</div>
+      <div class="tile-arrow">↗</div>
+    </div>
+    <div class="hub-tile t-glass no-br rv" style="transition-delay:.1s" data-route="accenture">
+      <div class="tile-tag">./work/accenture</div>
+      <div class="tile-title">Accenture</div>
+      <div class="tile-sub">Healthcare & Life Sciences · Feb 2021 – Jun 2023 · MEAN Stack</div>
+      <div class="tile-arrow">↗</div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="hub-tile t-green rv" style="transition-delay:.04s" data-route="skills">
+      <div class="tile-tag">./skills</div>
+      <div class="tile-big-num">30<sup>+</sup></div>
+      <div class="tile-lbl">Technologies</div>
+    </div>
+    <div class="hub-tile t-surface rv" style="transition-delay:.08s" data-route="projects">
+      <div class="tile-tag">./projects</div>
+      <div class="tile-big-num">04</div>
+      <div class="tile-lbl">Open Source Projects</div>
+    </div>
+    <div class="hub-tile t-amber rv" style="transition-delay:.12s">
+      <div class="tile-big-num am">99.9<sup>%</sup></div>
+      <div class="tile-lbl">Linux Server Uptime</div>
+    </div>
+    <div class="hub-tile t-void no-br rv" style="transition-delay:.16s" data-route="contact">
+      <div class="tile-tag">./contact</div>
+      <div class="tile-title">Hire Me</div>
+      <div class="tile-sub">Immediate joiner. Let's build something that matters.</div>
+      <div class="tile-arrow">↗</div>
+    </div>
+
+    <!-- Row 3: contact info + intern -->
+    <div class="hub-tile t-glass no-bb rv" style="transition-delay:.06s;cursor:default">
+      <div class="tile-tag">./contact_info</div>
+      <div class="ci-list">
+        <div class="ci-r"><span class="ci-l">Email</span><a href="mailto:basudipanjan145@gmail.com">basudipanjan145@gmail.com</a></div>
+        <div class="ci-r"><span class="ci-l">Phone</span><a href="tel:+917980373475">+91 79803 73475</a></div>
+        <div class="ci-r"><span class="ci-l">GitHub</span><a href="https://github.com/Dibose" target="_blank">github.com/Dibose</a></div>
+        <div class="ci-r"><span class="ci-l">LinkedIn</span><a href="https://linkedin.com/in/dipanjanbosecom" target="_blank">dipanjanbosecom</a></div>
+      </div>
+    </div>
+    <div class="hub-tile t-surface no-bb rv" style="transition-delay:.09s;cursor:default">
+      <div class="tile-tag">./work/intern · Jul–Oct 2020</div>
+      <div class="tile-title" style="font-size:1.2rem;margin-bottom:.35rem">Floating Numbers Solutions</div>
+      <div class="tile-sub">Built Event Hosting (Laravel, Vue.js, Firebase) + Training & Placement System (Java, MySQL, JSP) — two complete systems in four months.</div>
+    </div>
+    <div class="hub-tile t-void no-bb rv" style="transition-delay:.12s;cursor:default">
+      <div class="tile-big-num am">10k<sup>+</sup></div>
+      <div class="tile-lbl">Daily Transactions Processed</div>
+    </div>
+    <div class="hub-tile t-glass no-br no-bb rv" style="transition-delay:.15s;cursor:default">
+      <div class="tile-big-num" style="font-size:2.4rem">B.Tech<br/>CSE</div>
+      <div class="tile-lbl">ST Thomas College · 2020 · CGPA 7.2</div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="ft"><span>root@dipanjan-basu</span>:~$ · Click any tile to explore</span>
+    <span class="ft">Angular · Go · Java · <span>MySQL</span></span>
+  </footer>
+</div>
+
+<!-- ══════════════════ ABOUT ══════════════════ -->
+<div id="page-about" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div>
+        <div class="detail-tag">./about — profile</div>
+        <div class="detail-title">Dipanjan Basu</div>
+      </div>
+      <div class="detail-meta">Full-Stack Developer<br/>Kolkata, India · Immediate Joiner</div>
+    </div>
+    <div class="detail-grid rv" style="transition-delay:.08s">
+      <div class="detail-main">
+        <div class="sec-h">Profile</div>
+        <div class="about-cols">
+          <div>
+            <p class="about-p">At <strong>Deloitte India</strong> (client: Mercedes-Benz), I was the lead engineer on a greenfield FIN/VIN after-sales platform — designed end-to-end, from MySQL schema to Angular 18+ micro-frontend architecture. The system replaced a legacy pipeline that bottlenecked 40+ dealerships.</p>
+            <p class="about-p">At <strong>Accenture</strong>, I shipped three MEAN stack applications in healthcare and life sciences serving 5,000+ active users. I drove measurable front-end performance improvements, reduced API response times from 850ms to 310ms, and mentored a team of three junior engineers.</p>
+          </div>
+          <div>
+            <p class="about-p">I specialise in <strong>Angular 18+, Go, Java, Node.js, MySQL, MongoDB</strong>. I've recently integrated OpenAI GPT-4 and Google Gemini API into personal GenAI projects — AngularAI and SmartDash.</p>
+            <p class="about-p">B.Tech in Computer Science & Engineering, 2020. Agile-certified. Available immediately for full-stack roles.</p>
+          </div>
+        </div>
+        <div class="chips" style="margin-top:1.2rem">
+          <span class="chip">Angular 18+</span><span class="chip">Go</span><span class="chip">Java</span>
+          <span class="chip">MySQL</span><span class="chip">NgRx</span><span class="chip">RxJS</span>
+          <span class="chip">Node.js</span><span class="chip">MongoDB</span><span class="chip">OpenAI</span>
+          <span class="chip">Gemini API</span><span class="chip">Module Federation</span><span class="chip">Docker</span><span class="chip">Linux</span>
+        </div>
+        <div style="margin-top:1.6rem;display:flex;gap:.7rem;flex-wrap:wrap;">
+          <a class="btn-exec" data-route="deloitte">View Deloitte Work</a>
+          <a class="btn-ghost" data-route="skills">View All Skills</a>
+        </div>
+      </div>
+      <div class="detail-side">
+        <div class="side-panel">
+          <div class="side-big">4.5<sup>yr</sup></div>
+          <div class="side-lbl">Full-Stack Experience</div>
+        </div>
+        <div class="side-panel">
+          <div class="sec-h" style="margin-bottom:.6rem">Contact</div>
+          <div class="side-list">
+            <div class="side-item"><span class="side-item-lbl">Email</span><span style="font-size:.72rem;color:var(--muted)">basudipanjan145@gmail.com</span></div>
+            <div class="side-item"><span class="side-item-lbl">Phone</span><span style="font-size:.72rem;color:var(--muted)">+91 79803 73475</span></div>
+            <div class="side-item"><span class="side-item-lbl">GitHub</span><span style="font-size:.72rem;color:var(--muted)">github.com/Dibose</span></div>
+            <div class="side-item"><span class="side-item-lbl">LinkedIn</span><span style="font-size:.72rem;color:var(--muted)">dipanjanbosecom</span></div>
+            <div class="side-item"><span class="side-item-lbl">Location</span><span style="font-size:.72rem;color:var(--muted)">Kolkata, India</span></div>
+          </div>
+        </div>
+        <div class="side-panel">
+          <div class="sec-h" style="margin-bottom:.6rem">Education</div>
+          <div style="font-size:.78rem;color:var(--muted);line-height:1.7">B.Tech CSE<br/><span style="color:var(--text)">ST Thomas College of Engineering</span><br/>2016 – 2020 · CGPA 7.2</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/about</span><span class="ft">Angular · Go · Java · <span>MySQL</span></span></footer>
+</div>
+
+<!-- ══════════════════ DELOITTE ══════════════════ -->
+<div id="page-deloitte" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div>
+        <div class="detail-tag">./work/deloitte — Mar 2024 – Mar 2026</div>
+        <div class="detail-title">Deloitte India</div>
+      </div>
+      <div class="detail-meta">Full-Stack Developer<br/>Client: Mercedes-Benz · On-site, Bengaluru</div>
+    </div>
+    <div class="detail-grid rv" style="transition-delay:.08s">
+      <div class="detail-main">
+        <div class="sec-h">Responsibilities & Impact</div>
+        <ul class="exp-list">
+          <li>Led architecture of a <strong>greenfield FIN/VIN after-sales platform</strong> for Mercedes-Benz — system now processes dealer workflows 60% faster than the legacy pipeline it replaced, directly reducing manual intervention at 40+ dealerships across the network</li>
+          <li>Designed a <strong>Module Federation micro-frontend</strong> across four independently deployable Angular 18+ feature modules; decoupled team ownership cut cross-team merge conflicts by 65% and compressed release cycles by 45%, enabling parallel delivery across squads</li>
+          <li>Engineered complex <strong>RxJS reactive pipelines</strong> (switchMap, combineLatest, debounceTime, takeUntilDestroyed) paired with hierarchical Angular DI — eradicated 90% of memory leaks and halved UI state defect count across a 40,000-line codebase, improving both developer experience and end-user stability</li>
+          <li>Authored and optimised <strong>15+ RESTful Go APIs</strong> from scratch; established request-handling patterns that consistently achieve sub-120ms P95 response times under production load — validated via Rancher-deployed Linux infrastructure maintained at 99.9% uptime</li>
+          <li>Designed <strong>relational MySQL schemas</strong> across 5+ normalised tables; applied covering indexes and query-plan analysis to eliminate full-table scans — end-to-end latency on data-heavy dealer views dropped 40%, making real-time inventory lookups feasible for the first time</li>
+          <li>Built <strong>Java backend services</strong> processing 10,000+ daily transactions with JWT-based role-level auth across three user tiers (Admin, Dealer, Service Agent); integrated GitHub Copilot organisation-wide, reducing boilerplate by 55% and cutting code review cycles by 25%</li>
+        </ul>
+        <div class="chips">
+          <span class="chip">Angular 18+</span><span class="chip">Go</span><span class="chip">Java</span>
+          <span class="chip">MySQL</span><span class="chip">NgRx</span><span class="chip">RxJS</span>
+          <span class="chip">Module Federation</span><span class="chip">Angular DI</span><span class="chip">JWT</span>
+          <span class="chip">Linux</span><span class="chip">Rancher</span><span class="chip">GitHub Copilot</span>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;gap:.7rem;flex-wrap:wrap;">
+          <a class="btn-exec" data-route="accenture">Next: Accenture →</a>
+          <a class="btn-ghost" data-route="projects">View Projects</a>
+        </div>
+      </div>
+      <div class="detail-side">
+        <div class="side-panel"><div class="side-big">60<sup>%</sup></div><div class="side-lbl">Faster Dealer Processing</div></div>
+        <div class="side-panel"><div class="side-big">65<sup>%</sup></div><div class="side-lbl">Fewer Merge Conflicts</div></div>
+        <div class="side-panel"><div class="side-big am">40<sup>%</sup></div><div class="side-lbl">DB Latency Reduced</div></div>
+        <div class="side-panel"><div class="side-big">99.9<sup>%</sup></div><div class="side-lbl">Linux Uptime</div></div>
+        <div class="side-panel">
+          <div class="side-big">10k<sup>+</sup></div>
+          <div class="side-lbl">Daily Transactions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/work/deloitte</span><span class="ft">Angular · Go · Java · <span>MySQL</span></span></footer>
+</div>
+
+<!-- ══════════════════ ACCENTURE ══════════════════ -->
+<div id="page-accenture" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div>
+        <div class="detail-tag">./work/accenture — Feb 2021 – Jun 2023</div>
+        <div class="detail-title">Accenture Solutions</div>
+      </div>
+      <div class="detail-meta">Frontend Development Analyst<br/>Healthcare & Life Sciences · Bengaluru</div>
+    </div>
+    <div class="detail-grid rv" style="transition-delay:.08s">
+      <div class="detail-main">
+        <div class="sec-h">Responsibilities & Impact</div>
+        <ul class="exp-list">
+          <li>Delivered <strong>3 MEAN stack applications</strong> serving 5,000+ active users across healthcare and life sciences product lines — end-to-end ownership from Angular components to MongoDB query design</li>
+          <li>Built <strong>NgRx store architecture with 12+ feature states</strong>, typed selectors, and effect-driven side effects — reduced state-related defects by 60% and improved component reusability by 40% across the codebase</li>
+          <li>Drove front-end performance engineering: combined lazy loading, preload strategies, and bundle optimisation to lift the <strong>page performance score from 62 to 89</strong>, cutting load time by 30% and significantly improving perceived responsiveness for clinical users</li>
+          <li>Tuned Node.js/Express query execution against MongoDB — brought API response times from <strong>850ms down to 310ms</strong> and cut server error rates by 38%; shipped 20+ JWT-secured RESTful endpoints with consistent integration quality</li>
+          <li>Mentored <strong>3 junior engineers</strong> through structured code review and pair programming — PR rework volume dropped 50%; team delivered sprint goals 10% ahead of estimates over two quarters</li>
+        </ul>
+        <div class="chips">
+          <span class="chip">Angular 2+</span><span class="chip">NgRx</span><span class="chip">RxJS</span>
+          <span class="chip">Node.js</span><span class="chip">Express.js</span><span class="chip">MongoDB</span>
+          <span class="chip">JWT</span><span class="chip">REST APIs</span><span class="chip">TypeScript</span>
+        </div>
+        <div style="margin-top:1.5rem;display:flex;gap:.7rem;flex-wrap:wrap;">
+          <a class="btn-exec" data-route="deloitte">← Deloitte</a>
+          <a class="btn-ghost" data-route="skills">View All Skills</a>
+        </div>
+      </div>
+      <div class="detail-side">
+        <div class="side-panel"><div class="side-big">5k<sup>+</sup></div><div class="side-lbl">Active Users Served</div></div>
+        <div class="side-panel"><div class="side-big am">62→89</div><div class="side-lbl">Page Performance Score</div></div>
+        <div class="side-panel"><div class="side-big">310<sup>ms</sup></div><div class="side-lbl">API Response (from 850ms)</div></div>
+        <div class="side-panel"><div class="side-big">60<sup>%</sup></div><div class="side-lbl">Fewer State Defects</div></div>
+      </div>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/work/accenture</span><span class="ft">Angular · NgRx · Node.js · <span>MongoDB</span></span></footer>
+</div>
+
+<!-- ══════════════════ SKILLS ══════════════════ -->
+<div id="page-skills" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div>
+        <div class="detail-tag">./skills — full stack</div>
+        <div class="detail-title">Technical Stack</div>
+      </div>
+      <div class="detail-meta">30+ Technologies<br/>4.5 Years Production Usage</div>
+    </div>
+    <div class="skills-grid-full rv" style="transition-delay:.07s">
+      <div class="sk-cell">
+        <div class="sk-cat">Frontend</div>
+        <div class="sk-pills"><span class="pill">Angular 2+/18+</span> <span class="pill">TypeScript</span> <span class="pill">JavaScript ES6+</span> <span class="pill">RxJS</span> <span class="pill">NgRx</span> <span class="pill">Signals</span> <span class="pill">Module Federation</span> <span class="pill">Angular DI</span> <span class="pill">Angular Material</span> <span class="pill">SASS</span> <span class="pill">Bootstrap</span> <span class="pill">HTML5</span></div>
+      </div>
+      <div class="sk-cell">
+        <div class="sk-cat">Backend</div>
+        <div class="sk-pills"><span class="pill">Go (Golang)</span> <span class="pill">Java</span> <span class="pill">Node.js</span> <span class="pill">Express.js</span> <span class="pill">Nest.js</span> <span class="pill">JWT Auth</span> <span class="pill">RESTful APIs</span> <span class="pill">Laravel</span></div>
+      </div>
+      <div class="sk-cell">
+        <div class="sk-cat">Database</div>
+        <div class="sk-pills"><span class="pill">MySQL</span> <span class="pill">MongoDB</span> <span class="pill">Schema Design</span> <span class="pill">Query Optimisation</span> <span class="pill">Indexing</span> <span class="pill">Mongoose</span></div>
+      </div>
+      <div class="sk-cell">
+        <div class="sk-cat">GenAI & Tooling</div>
+        <div class="sk-pills"><span class="pill">OpenAI GPT-4</span> <span class="pill">Gemini API</span> <span class="pill">GitHub Copilot</span> <span class="pill">Postman</span> <span class="pill">Swagger</span> <span class="pill">Figma</span> <span class="pill">Jira</span> <span class="pill">VS Code</span></div>
+      </div>
+      <div class="sk-cell">
+        <div class="sk-cat">Infrastructure</div>
+        <div class="sk-pills"><span class="pill">Linux Servers</span> <span class="pill">Docker</span> <span class="pill">Rancher</span> <span class="pill">Git</span> <span class="pill">GitHub</span> <span class="pill">NPM</span></div>
+      </div>
+      <div class="sk-cell">
+        <div class="sk-cat">Testing & Methods</div>
+        <div class="sk-pills"><span class="pill">Karma</span> <span class="pill">Jasmine</span> <span class="pill">Unit Testing</span> <span class="pill">Agile</span> <span class="pill">Scrum</span> <span class="pill">Code Review</span> <span class="pill">TDD</span></div>
+      </div>
+    </div>
+    <div style="margin-top:1.4rem;display:flex;gap:.7rem;flex-wrap:wrap;" class="rv" style="transition-delay:.1s">
+      <a class="btn-exec" data-route="projects">View Projects →</a>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/skills</span><span class="ft">30+ Technologies · <span>Production</span></span></footer>
+</div>
+
+<!-- ══════════════════ PROJECTS ══════════════════ -->
+<div id="page-projects" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div>
+        <div class="detail-tag">./projects — open source</div>
+        <div class="detail-title">Built Work</div>
+      </div>
+      <div class="detail-meta">4 Projects<br/><a href="https://github.com/Dibose" target="_blank" style="color:var(--green);text-decoration:none;font-size:.62rem">github.com/Dibose ↗</a></div>
+    </div>
+    <div class="proj-grid rv" style="transition-delay:.08s">
+      <div class="proj-card" data-route="proj-angular-ai">
+        <div class="pnum">01</div>
+        <div class="pbadge">GenAI · Angular 18+ · Module Federation</div>
+        <div class="pname">AngularAI — GenAI Developer Assistant</div>
+        <div class="pdesc">Micro-frontend with OpenAI GPT-4, RxJS streaming, NgRx conversation store, and pluggable LLM providers via Angular DI. Sub-200ms token stream-to-UI latency.</div>
+        <div class="pchips"><span class="pc">Angular 18+</span><span class="pc">OpenAI</span><span class="pc">NgRx</span><span class="pc">RxJS</span><span class="pc">Module Federation</span></div>
+        <div class="tile-arrow">Click to expand ↗</div>
+      </div>
+      <div class="proj-card" data-route="proj-smartdash">
+        <div class="pnum">02</div>
+        <div class="pbadge">GenAI · NgRx Signals · Angular 17+</div>
+        <div class="pname">SmartDash — AI Analytics Dashboard</div>
+        <div class="pdesc">Angular 17+ standalone + Gemini API: natural language → chart generation. NgRx signals store, RxJS debounce pipelines, dynamic component injection via DI.</div>
+        <div class="pchips"><span class="pc">Angular 17+</span><span class="pc">Gemini</span><span class="pc">NgRx Signals</span><span class="pc">Chart.js</span></div>
+        <div class="tile-arrow">Click to expand ↗</div>
+      </div>
+      <div class="proj-card" data-route="proj-flipkart">
+        <div class="pnum">03</div>
+        <div class="pbadge">MEAN Stack · eCommerce · Full-Stack</div>
+        <div class="pname">Flipkart Clone — eCommerce Platform</div>
+        <div class="pdesc">Full eCommerce with payment gateway, search/filter, and 3-tier RBAC (Admin/Vendor/User). Complete MEAN stack, JWT auth interceptors, role guards.</div>
+        <div class="pchips"><span class="pc">Angular</span><span class="pc">Node.js</span><span class="pc">MongoDB</span><span class="pc">Razorpay</span></div>
+        <div class="tile-arrow">Click to expand ↗</div>
+      </div>
+      <div class="proj-card" data-route="proj-chatup">
+        <div class="pnum">04</div>
+        <div class="pbadge">Real-Time · WebRTC · WebSocket</div>
+        <div class="pname">ChatUp — Real-Time Chat App</div>
+        <div class="pdesc">1:1 & group messaging, WebRTC video/audio calls, stories, typing indicators, delivery receipts. RxJS fromEvent wrappers + Karma/Jasmine test coverage.</div>
+        <div class="pchips"><span class="pc">Socket.io</span><span class="pc">WebRTC</span><span class="pc">RxJS</span><span class="pc">Node.js</span></div>
+        <div class="tile-arrow">Click to expand ↗</div>
+      </div>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/projects</span><span class="ft">github.com/<span>Dibose</span></span></footer>
+</div>
+
+<!-- ══════════════════ PROJECT DETAILS ══════════════════ -->
+<div id="page-proj-angular-ai" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div><div class="detail-tag">./projects/01 — GenAI · Angular 18+</div><div class="detail-title">AngularAI</div></div>
+      <div class="detail-meta"><a href="https://github.com/Dibose/angular-ai" target="_blank" style="color:var(--green);text-decoration:none">github.com/Dibose/angular-ai ↗</a></div>
+    </div>
+    <div class="proj-detail-hero rv" style="transition-delay:.07s">
+      <div class="proj-detail-main">
+        <div class="sec-h">About This Project</div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.85;margin-bottom:1rem">A production-grade GenAI developer assistant built as an Angular 18+ micro-frontend application. Demonstrates Module Federation, reactive streaming, and pluggable LLM architecture — patterns directly applicable to enterprise-scale frontend systems.</p>
+        <div class="sec-h" style="margin-top:1.2rem">Key Technical Features</div>
+        <ul class="proj-feature-list">
+          <li><strong>Module Federation micro-frontend</strong> — each feature area independently deployable with shared runtime dependencies</li>
+          <li><strong>OpenAI GPT-4 streaming via RxJS</strong> — fromFetch + scan operator chain streams tokens to UI with sub-200ms first-token latency</li>
+          <li><strong>NgRx conversation store</strong> — full message history, streaming state, and error recovery managed through typed actions and effects</li>
+          <li><strong>Pluggable LLM providers via Angular DI</strong> — swap between OpenAI, Gemini, or any custom provider via injection token, zero component changes</li>
+          <li><strong>Standalone components + Signals</strong> — Angular 18+ architecture with fine-grained reactivity, no zone.js for AI update path</li>
+        </ul>
+        <div class="chips" style="margin-top:1rem"><span class="chip">Angular 18+</span><span class="chip">OpenAI GPT-4</span><span class="chip">NgRx</span><span class="chip">RxJS</span><span class="chip">Module Federation</span><span class="chip">Signals</span><span class="chip">TypeScript</span></div>
+        <a href="https://github.com/Dibose/angular-ai" target="_blank" class="proj-link-btn">View on GitHub ↗</a>
+      </div>
+      <div class="proj-detail-side">
+        <div class="side-panel"><div class="side-big">&lt;200<sup>ms</sup></div><div class="side-lbl">First Token Latency</div></div>
+        <div class="side-panel"><div class="side-big am">18+</div><div class="side-lbl">Angular Version</div></div>
+        <div class="side-panel">
+          <div class="sec-h" style="margin-bottom:.5rem">Stack</div>
+          <div style="font-size:.75rem;color:var(--muted);line-height:1.9">Angular 18+ · TypeScript<br/>NgRx · RxJS · Signals<br/>OpenAI API · Module Federation<br/>Angular DI · Webpack 5</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.2rem;display:flex;gap:.7rem;flex-wrap:wrap;" class="rv" style="transition-delay:.1s">
+      <a class="btn-exec" data-route="proj-smartdash">Next Project →</a>
+      <a class="btn-ghost" data-route="projects">← All Projects</a>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/projects/angular-ai</span><span class="ft">github.com/<span>Dibose</span></span></footer>
+</div>
+
+<div id="page-proj-smartdash" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div><div class="detail-tag">./projects/02 — GenAI · NgRx Signals</div><div class="detail-title">SmartDash</div></div>
+      <div class="detail-meta"><a href="https://github.com/Dibose/smartdash" target="_blank" style="color:var(--green);text-decoration:none">github.com/Dibose/smartdash ↗</a></div>
+    </div>
+    <div class="proj-detail-hero rv" style="transition-delay:.07s">
+      <div class="proj-detail-main">
+        <div class="sec-h">About This Project</div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.85;margin-bottom:1rem">An AI-powered analytics dashboard that converts natural language queries into interactive charts via Google Gemini API. Built on Angular 17+ standalone architecture with the new NgRx Signals store for fine-grained state management.</p>
+        <div class="sec-h" style="margin-top:1.2rem">Key Technical Features</div>
+        <ul class="proj-feature-list">
+          <li><strong>Gemini API integration</strong> — natural language input parsed and converted to structured Chart.js configuration via structured output prompting</li>
+          <li><strong>NgRx Signals store</strong> — new Angular 17+ signals-based state management with computed derivations and automatic UI synchronisation</li>
+          <li><strong>RxJS debounceTime pipeline</strong> — prevents excessive API calls while typing; maintains responsive UX with optimistic UI updates</li>
+          <li><strong>Dynamic component injection</strong> — chart types (bar, line, pie, scatter) injected at runtime via Angular DI without static imports</li>
+          <li><strong>Angular 17+ standalone</strong> — zero NgModule architecture, direct imports, simplified tree-shaking for smaller bundles</li>
+        </ul>
+        <div class="chips" style="margin-top:1rem"><span class="chip">Angular 17+</span><span class="chip">Gemini API</span><span class="chip">NgRx Signals</span><span class="chip">RxJS</span><span class="chip">Chart.js</span><span class="chip">TypeScript</span></div>
+        <a href="https://github.com/Dibose/smartdash" target="_blank" class="proj-link-btn">View on GitHub ↗</a>
+      </div>
+      <div class="proj-detail-side">
+        <div class="side-panel"><div class="side-big am">NL→</div><div class="side-lbl">Natural Language to Chart</div></div>
+        <div class="side-panel"><div class="side-big">17+</div><div class="side-lbl">Angular Version (Standalone)</div></div>
+        <div class="side-panel">
+          <div class="sec-h" style="margin-bottom:.5rem">Stack</div>
+          <div style="font-size:.75rem;color:var(--muted);line-height:1.9">Angular 17+ · TypeScript<br/>NgRx Signals · RxJS<br/>Gemini API · Chart.js<br/>Angular DI · SASS</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.2rem;display:flex;gap:.7rem;flex-wrap:wrap;" class="rv" style="transition-delay:.1s">
+      <a class="btn-exec" data-route="proj-flipkart">Next Project →</a>
+      <a class="btn-ghost" data-route="projects">← All Projects</a>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/projects/smartdash</span><span class="ft">github.com/<span>Dibose</span></span></footer>
+</div>
+
+<div id="page-proj-flipkart" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div><div class="detail-tag">./projects/03 — MEAN Stack · eCommerce</div><div class="detail-title">Flipkart Clone</div></div>
+      <div class="detail-meta"><a href="https://github.com/Dibose/flipkart-clone" target="_blank" style="color:var(--green);text-decoration:none">github.com/Dibose/flipkart-clone ↗</a></div>
+    </div>
+    <div class="proj-detail-hero rv" style="transition-delay:.07s">
+      <div class="proj-detail-main">
+        <div class="sec-h">About This Project</div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.85;margin-bottom:1rem">Full-stack eCommerce platform demonstrating the complete MEAN stack in a real-world commerce scenario — from Angular frontend through Node.js/Express REST API to MongoDB persistence, with Razorpay payment gateway integration.</p>
+        <div class="sec-h" style="margin-top:1.2rem">Key Technical Features</div>
+        <ul class="proj-feature-list">
+          <li><strong>3-tier RBAC system</strong> — Admin, Vendor, and User roles with route-level guards, HTTP interceptors, and JWT-based session management</li>
+          <li><strong>Full product lifecycle</strong> — CRUD operations, image upload, category management, inventory tracking, and search/filter with pagination</li>
+          <li><strong>Razorpay payment gateway</strong> — order creation, payment verification via webhook, and failure recovery flows</li>
+          <li><strong>Auth interceptor pattern</strong> — Angular HTTP interceptor attaches JWT to all requests; refresh token flow handles expiry transparently</li>
+          <li><strong>MongoDB aggregation pipelines</strong> — category-wise analytics, sales reporting, and inventory summaries via $group, $lookup, and $project stages</li>
+        </ul>
+        <div class="chips" style="margin-top:1rem"><span class="chip">Angular</span><span class="chip">Node.js</span><span class="chip">Express</span><span class="chip">MongoDB</span><span class="chip">Razorpay</span><span class="chip">JWT</span><span class="chip">TypeScript</span></div>
+        <a href="https://github.com/Dibose/flipkart-clone" target="_blank" class="proj-link-btn">View on GitHub ↗</a>
+      </div>
+      <div class="proj-detail-side">
+        <div class="side-panel"><div class="side-big">3</div><div class="side-lbl">User Role Tiers</div></div>
+        <div class="side-panel"><div class="side-big am">MEAN</div><div class="side-lbl">Full Stack</div></div>
+        <div class="side-panel">
+          <div class="sec-h" style="margin-bottom:.5rem">Stack</div>
+          <div style="font-size:.75rem;color:var(--muted);line-height:1.9">Angular · Node.js<br/>Express.js · MongoDB<br/>Razorpay · JWT<br/>Mongoose · TypeScript</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.2rem;display:flex;gap:.7rem;flex-wrap:wrap;" class="rv" style="transition-delay:.1s">
+      <a class="btn-exec" data-route="proj-chatup">Next Project →</a>
+      <a class="btn-ghost" data-route="projects">← All Projects</a>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/projects/flipkart-clone</span><span class="ft">github.com/<span>Dibose</span></span></footer>
+</div>
+
+<div id="page-proj-chatup" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div><div class="detail-tag">./projects/04 — Real-Time · WebRTC</div><div class="detail-title">ChatUp</div></div>
+      <div class="detail-meta"><a href="https://github.com/Dibose/chatup" target="_blank" style="color:var(--green);text-decoration:none">github.com/Dibose/chatup ↗</a></div>
+    </div>
+    <div class="proj-detail-hero rv" style="transition-delay:.07s">
+      <div class="proj-detail-main">
+        <div class="sec-h">About This Project</div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.85;margin-bottom:1rem">Real-time communication platform with 1:1 and group messaging, WebRTC-powered video/audio calls, stories, and rich messaging features — all wrapped in a reactive Angular + RxJS architecture with full test coverage.</p>
+        <div class="sec-h" style="margin-top:1.2rem">Key Technical Features</div>
+        <ul class="proj-feature-list">
+          <li><strong>WebSocket architecture via Socket.io</strong> — RxJS fromEvent wrappers create clean Observable streams from socket events, making real-time updates composable and cancellable</li>
+          <li><strong>WebRTC peer-to-peer video/audio</strong> — STUN/TURN server setup, offer/answer signalling via Socket.io, ICE candidate exchange, and track management</li>
+          <li><strong>Rich messaging features</strong> — typing indicators (debounceTime), read receipts (combineLatest), delivery status (switchMap), and message reactions</li>
+          <li><strong>Stories system</strong> — ephemeral 24hr media posts with viewer tracking, expiry management, and ordered playback</li>
+          <li><strong>Karma/Jasmine test coverage</strong> — unit tests for socket service, message reducer, and WebRTC signalling state machine</li>
+        </ul>
+        <div class="chips" style="margin-top:1rem"><span class="chip">Angular</span><span class="chip">Socket.io</span><span class="chip">WebRTC</span><span class="chip">RxJS</span><span class="chip">Node.js</span><span class="chip">MongoDB</span><span class="chip">Karma</span><span class="chip">Jasmine</span></div>
+        <a href="https://github.com/Dibose/chatup" target="_blank" class="proj-link-btn">View on GitHub ↗</a>
+      </div>
+      <div class="proj-detail-side">
+        <div class="side-panel"><div class="side-big am">P2P</div><div class="side-lbl">WebRTC Video/Audio</div></div>
+        <div class="side-panel"><div class="side-big">RT</div><div class="side-lbl">Real-Time Messaging</div></div>
+        <div class="side-panel">
+          <div class="sec-h" style="margin-bottom:.5rem">Stack</div>
+          <div style="font-size:.75rem;color:var(--muted);line-height:1.9">Angular · RxJS<br/>Socket.io · WebRTC<br/>Node.js · MongoDB<br/>Karma · Jasmine</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:1.2rem;display:flex;gap:.7rem;flex-wrap:wrap;" class="rv" style="transition-delay:.1s">
+      <a class="btn-exec" data-route="proj-angular-ai">← First Project</a>
+      <a class="btn-ghost" data-route="projects">← All Projects</a>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/projects/chatup</span><span class="ft">github.com/<span>Dibose</span></span></footer>
+</div>
+
+<!-- ══════════════════ CONTACT ══════════════════ -->
+<div id="page-contact" class="page">
+  <div class="detail-page">
+    <div class="detail-header rv">
+      <div>
+        <div class="detail-tag">./contact — let's connect</div>
+        <div class="detail-title">Get in Touch</div>
+      </div>
+      <div class="detail-meta">Available Now<br/>Immediate Joiner · Kolkata</div>
+    </div>
+    <div class="contact-grid rv" style="transition-delay:.07s">
+      <div class="contact-left">
+        <div class="cta-prompt">$ ./contact --mode=hire</div>
+        <div class="cta-hed">Let's Build<br/>Something<br/>That Matters.</div>
+        <p style="font-size:.83rem;color:var(--muted);line-height:1.85;margin-bottom:1.4rem">I'm actively looking for full-stack roles where Angular expertise, Go/Java backend depth, and a love for clean architecture make a real difference. Available immediately.</p>
+        <a href="mailto:basudipanjan145@gmail.com" class="btn-exec" style="display:inline-block">send transmission</a>
+      </div>
+      <div class="contact-right">
+        <div class="clinks">
+          <a href="mailto:basudipanjan145@gmail.com" class="clink">
+            <span class="clink-lbl">Email</span><span class="clink-val">basudipanjan145@gmail.com</span><span class="clink-arr">↗</span>
+          </a>
+          <a href="tel:+917980373475" class="clink">
+            <span class="clink-lbl">Phone</span><span class="clink-val">+91 79803 73475</span><span class="clink-arr">↗</span>
+          </a>
+          <a href="https://linkedin.com/in/dipanjanbosecom" target="_blank" class="clink">
+            <span class="clink-lbl">LinkedIn</span><span class="clink-val">dipanjanbosecom</span><span class="clink-arr">↗</span>
+          </a>
+          <a href="https://github.com/Dibose" target="_blank" class="clink">
+            <span class="clink-lbl">GitHub</span><span class="clink-val">github.com/Dibose</span><span class="clink-arr">↗</span>
+          </a>
+          <div class="clink" style="cursor:default">
+            <span class="clink-lbl">Location</span><span class="clink-val">Kolkata, India</span><span class="clink-arr" style="color:var(--border-dim)">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer><span class="ft"><span>~</span>/contact</span><span class="ft">Immediate Joiner · <span>Kolkata</span></span></footer>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ─────────────────────────────────────────────
+// ROUTER
+// ─────────────────────────────────────────────
+const ROUTES = {
+  home:           {id:'page-home',      crumbs:[]},
+  about:          {id:'page-about',     crumbs:[{l:'about',r:'about'}]},
+  deloitte:       {id:'page-deloitte',  crumbs:[{l:'work',r:'deloitte'},{l:'deloitte',r:null}]},
+  accenture:      {id:'page-accenture', crumbs:[{l:'work',r:'accenture'},{l:'accenture',r:null}]},
+  skills:         {id:'page-skills',    crumbs:[{l:'skills',r:null}]},
+  projects:       {id:'page-projects',  crumbs:[{l:'projects',r:'projects'}]},
+  'proj-angular-ai':{id:'page-proj-angular-ai',crumbs:[{l:'projects',r:'projects'},{l:'angular-ai',r:null}]},
+  'proj-smartdash':{id:'page-proj-smartdash',crumbs:[{l:'projects',r:'projects'},{l:'smartdash',r:null}]},
+  'proj-flipkart': {id:'page-proj-flipkart',crumbs:[{l:'projects',r:'projects'},{l:'flipkart-clone',r:null}]},
+  'proj-chatup':   {id:'page-proj-chatup',crumbs:[{l:'projects',r:'projects'},{l:'chatup',r:null}]},
+  contact:        {id:'page-contact',   crumbs:[{l:'contact',r:null}]},
+};
+
+let history_stack = ['home'];
+let current = 'home';
+
+function navigate(route, pushHistory=true){
+  if(!ROUTES[route]) return;
+  const glitch = document.getElementById('glitch');
+  glitch.className = 'in';
+  setTimeout(()=>{
+    // hide all pages
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    // show target
+    const target = document.getElementById(ROUTES[route].id);
+    if(target) target.classList.add('active');
+    // update breadcrumb
+    updateBreadcrumb(route);
+    // update back btn
+    updateBackBtn(route);
+    // scroll to top
+    window.scrollTo(0,0);
+    // reveal
+    setTimeout(()=>{
+      document.querySelectorAll('.rv:not(.vis)').forEach((el,i)=>{
+        setTimeout(()=>el.classList.add('vis'), i*55);
+      });
+    }, 80);
+    current = route;
+    if(pushHistory){
+      history_stack.push(route);
+      window.location.hash = route==='home'?'':route;
+    }
+    // glitch out
+    glitch.className = 'out';
+    setTimeout(()=>glitch.className='',350);
+  }, 160);
+}
+
+function goBack(){
+  if(history_stack.length > 1){
+    history_stack.pop();
+    const prev = history_stack[history_stack.length-1];
+    navigate(prev, false);
+    window.location.hash = prev==='home'?'':prev;
+  }
+}
+
+function updateBreadcrumb(route){
+  const bc = document.getElementById('breadcrumb');
+  const crumbs = ROUTES[route].crumbs;
+  if(route==='home'){bc.innerHTML='';return;}
+  let html = `<a data-route="home">~</a>`;
+  crumbs.forEach((c,i)=>{
+    html += `<span class="sep"> / </span>`;
+    if(c.r && i<crumbs.length-1){
+      html += `<a data-route="${c.r}">${c.l}</a>`;
+    } else {
+      html += `<span class="cur-crumb">${c.l}</span>`;
+    }
+  });
+  bc.innerHTML = html;
+  bc.querySelectorAll('[data-route]').forEach(el=>{
+    el.addEventListener('click',()=>navigate(el.dataset.route));
+  });
+}
+
+function updateBackBtn(route){
+  const btn = document.getElementById('back-btn');
+  btn.style.display = route==='home' ? 'none' : 'block';
+}
+
+// ─────────────────────────────────────────────
+// CURSOR
+// ─────────────────────────────────────────────
+const cur=document.getElementById('cur'),cdot=document.getElementById('cur-dot');
+let mx=0,my=0,cx=0,cy=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cdot.style.left=mx+'px';cdot.style.top=my+'px';});
+(function a(){cx+=(mx-cx)*.12;cy+=(my-cy)*.12;cur.style.left=cx+'px';cur.style.top=cy+'px';requestAnimationFrame(a);})();
+document.addEventListener('mouseover',e=>{
+  if(e.target.closest('a,button,.hub-tile,.proj-card,.htile,.ptile')) cur.classList.add('on');
+  else cur.classList.remove('on');
+});
+
+// ─────────────────────────────────────────────
+// NAV SCROLL
+// ─────────────────────────────────────────────
+window.addEventListener('scroll',()=>document.getElementById('topnav').classList.toggle('lit',scrollY>30));
+
+// ─────────────────────────────────────────────
+// DELEGATE ALL [data-route] CLICKS
+// ─────────────────────────────────────────────
+document.addEventListener('click',e=>{
+  const el = e.target.closest('[data-route]');
+  if(el){
+    e.preventDefault();
+    navigate(el.dataset.route);
+  }
+});
+
+// ─────────────────────────────────────────────
+// HASH ROUTING (browser back/forward)
+// ─────────────────────────────────────────────
+window.addEventListener('hashchange',()=>{
+  const hash = window.location.hash.replace('#','') || 'home';
+  if(ROUTES[hash] && hash!==current) navigate(hash, false);
+});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',()=>{
+  const hash = window.location.hash.replace('#','') || 'home';
+  const startRoute = ROUTES[hash] ? hash : 'home';
+  document.getElementById(ROUTES[startRoute].id).classList.add('active');
+  updateBreadcrumb(startRoute);
+  updateBackBtn(startRoute);
+  current = startRoute;
+  history_stack = [startRoute];
+  setTimeout(()=>{
+    document.querySelectorAll('.rv').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*55));
+  },200);
+});
+
+// ─────────────────────────────────────────────
+// NAME SCRAMBLE
+// ─────────────────────────────────────────────
+const nm=document.getElementById('scramble-name');
+if(nm){
+  const chs='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*';
+  nm.addEventListener('mouseenter',function(){
+    const orig=this.innerText;let i=0;
+    const iv=setInterval(()=>{
+      this.innerText=orig.split('').map((c,j)=>j<i||c==='\n'?c:chs[Math.floor(Math.random()*chs.length)]).join('');
+      if(i++>=orig.length)clearInterval(iv);
+    },24);
+  });
+}
+</script>
+</body>
+</html>
